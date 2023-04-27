@@ -102,8 +102,10 @@ Pass
 抗锯齿做法如下：
 ```hlsl
 	float spec = dot(worldNormal,worldHalfDir);
+	float w = fwidth(spec) * 2.0;
 	spec = lerp(0,1,smoothstep(-w,w,spec-threshold));
 ```
+***！！！spec的精度如果是half或者更低，就会出现边缘粗糙的感觉！！！***
 - 另一种做法
 - 然后是高光specular的计算。用cg自带的reflect函数计算出反向的反射光方向，用正向的反射光方向与视角方向点乘得vDotRefl（与phong模型相似）。然后取样高光贴图值与_Glossiness相乘赋值给smoothness（贴图控制高光形状，_Glossiness控制高光大小）。使用step函数来对高光值取0或1（也就得到了硬的成块的高光效果）乘以_SpecularColor高光颜色，然后赋值给specular：
 ```
@@ -113,16 +115,45 @@ Pass
     float3 specular = _SpecularColor.rgb * step(1 - smoothness, vDotRefl);
 ```
 
+
+
 ## 法线贴图
 ### URP中使用法线贴图
-- 目前使用的法线贴图
+- 目前使用的法线贴图 都是切线空间下的 因此我们需要在顶点着色器中完成对灯光、视角的转换
+- 模型空间->切线空间矩阵求法：
+- 因为知道切线相对模型空间的向量，因此将切线空间的三轴按照列排布即为  切线空间->模型空间的矩阵
+- 因为切线空间是正交矩阵，因此转置矩阵等于逆矩阵，那么只需要将 切线空间->模型空间转置（按照行排布），即可得到 模型空间->切线空间
+```
+	_BumpMap ("Normal Map",2D) = "bump" {}
+    _BumpScale("Scale", Float) = 1.0
+```
+```
+		v2f vert(a2v v)
+            {
+                v2f o;
+                o.pos = TransformObjectToHClip(v.vertex);
+                o.uv = TRANSFORM_TEX(v.texcoord, _MainTex);
+                float3 binormal = cross(v.normal, v.tangent.xyz) * v.tangent.w;
+                // tangent、binormal、normal为模型坐标系下的表示
+                // 转置摆放后（按行摆放，按列摆放的话为 切线空间->模型空间）即为 模型空间->切线空间 的矩阵
+                float3x3 rotation = float3x3(v.tangent.xyz, binormal, v.normal);
+                //TANGENT_SPACE_ROTATION;
+                // URP 中没有 ObjSpaceLightDir
+                half3 objectSpaceLightDir = TransformWorldToObjectDir(_MainLightPosition.xyz);
+                o.tangentLightDir = mul(rotation, objectSpaceLightDir).xyz;
+                half3 objectSpaceViewDir = half3(TransformWorldToObject(_WorldSpaceCameraPos.xyz) - v.vertex.xyz);
+                o.tangentViewDir = mul(rotation, objectSpaceViewDir).xyz;
+                o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
+                return o;
+            }
+```
 
 
 
 
 ## alpha贴图
-### 
-
+### 感觉是 简单一张贴图使用alpha通道就可以。
+### 具体可以参照透明度测试
 
 
 
