@@ -104,6 +104,34 @@ Pass
 	float spec = dot(worldNormal,worldHalfDir);
 	spec = lerp(0,1,smoothstep(-w,w,spec-threshold));
 ```
+- 另一种做法
+- 然后是高光specular的计算。用cg自带的reflect函数计算出反向的反射光方向，用正向的反射光方向与视角方向点乘得vDotRefl（与phong模型相似）。然后取样高光贴图值与_Glossiness相乘赋值给smoothness（贴图控制高光形状，_Glossiness控制高光大小）。使用step函数来对高光值取0或1（也就得到了硬的成块的高光效果）乘以_SpecularColor高光颜色，然后赋值给specular：
+```
+	float3 refl = reflect(lightDir, normal);
+    float vDotRefl = dot(viewDir, -refl);
+    float smoothness = tex2D(_SpecularMap, i.uv.zw).x * _Glossiness;
+    float3 specular = _SpecularColor.rgb * step(1 - smoothness, vDotRefl);
+```
+
+## 法线贴图
+### URP中使用法线贴图
+- 目前使用的法线贴图
+
+
+
+
+## alpha贴图
+### 
+
+
+
+
+
+
+
+
+
+
 - 问题小记
 - 高光生成区域不规则，和例图差距较大
 	- 比对后发现计算法线时候没有归一化处理half3 worldNormal = i.worldNormal/half3 worldNormal = normalize(i.worldNormal);
