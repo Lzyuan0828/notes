@@ -1,4 +1,4 @@
-## 渲染管线
+# 渲染管线
 ### 通用渲染管线
 - "RenderPipeline" = "UniversalPipeline"
 ### 内置渲染管线
@@ -117,7 +117,7 @@ Pass
 
 
 
-## 法线贴图
+# 法线贴图
 ### URP中使用法线贴图
 - 目前使用的法线贴图 都是切线空间下的 因此我们需要在顶点着色器中完成对灯光、视角的转换
 - 模型空间->切线空间矩阵求法：
@@ -151,9 +151,22 @@ Pass
 
 
 
-## alpha贴图
-### 感觉是 简单一张贴图使用alpha通道就可以。
-### 具体可以参照透明度测试
+# alpha贴图
+感觉是 简单一张贴图使用alpha通道就可以。
+具体可以参照透明度测试
+
+
+# URP中的TAGS
+### "LightMode"
+- DepthOnly 遇到了一个问题是，在shader中没有声明DepthOnly的Pass的时候，在Scene视角下，似乎读取不到深度。声明后变为正常。
+    + 官方文档对于DepthOnly的描述如下：The Pass renders only depth information from the perspective of a Camera into a depth texture.
+
+## 后处理
+### Unity中的后处理
+[Unity中的后处理](https://johnyoung404.github.io/2019/12/13/Unity%E4%B8%AD%E7%9A%84%E5%90%8E%E5%A4%84%E7%90%86-post-processing/)
+### 如何扩展Unity URP的后处理Volum组件
+[如何扩展UnityURP的后处理Volum组件](https://www.zhihu.com/tardis/zm/art/161658349?source_id=1003)
+- 看起来还是使用的RenderFeature
 
 
 
@@ -163,7 +176,9 @@ Pass
 
 
 
-- 问题小记
+# 问题小记
 - 高光生成区域不规则，和例图差距较大
-	- 比对后发现计算法线时候没有归一化处理half3 worldNormal = i.worldNormal/half3 worldNormal = normalize(i.worldNormal);
-	- 这个处理放在顶点着色器中应该也是不对的，因为到片元内是插值，归一化会失去作用。
+    + 比对后发现计算法线时候没有归一化处理half3 worldNormal = i.worldNormal/half3 worldNormal = normalize(i.worldNormal);
+    + 这个处理放在顶点着色器中应该也是不对的，因为到片元内是插值，归一化会失去作用。
+- 高光区域边缘粗糙
+    +   计算值的精度问题
