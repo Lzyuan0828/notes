@@ -166,8 +166,24 @@ Pass
 [Unity中的后处理](https://johnyoung404.github.io/2019/12/13/Unity%E4%B8%AD%E7%9A%84%E5%90%8E%E5%A4%84%E7%90%86-post-processing/)
 ### 如何扩展Unity URP的后处理Volum组件
 [如何扩展UnityURP的后处理Volum组件](https://www.zhihu.com/tardis/zm/art/161658349?source_id=1003)
-- 看起来还是使用的RenderFeature
+- local化URP源码修改
+### renderFeature的顺序
+```
+ public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
+        {
+            m_ScriptablePass.renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
+            renderer.EnqueuePass(m_ScriptablePass);
+        }
+```
+通过 RenderPassEvent定义顺序
 
+# Blend Type
+Blend SrcAlpha OneMinusSrcAlpha // 传统透明度
+Blend One OneMinusSrcAlpha // 预乘透明度
+Blend One One // 加法
+Blend OneMinusDstColor One // 软加法
+Blend DstColor Zero // 乘法
+Blend DstColor SrcColor // 2x 乘法
 
 
 
