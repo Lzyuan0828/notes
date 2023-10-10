@@ -160,6 +160,7 @@ Pass
 ### "LightMode"
 - DepthOnly 遇到了一个问题是，在shader中没有声明DepthOnly的Pass的时候，在Scene视角下，似乎读取不到深度。声明后变为正常。
     + 官方文档对于DepthOnly的描述如下：The Pass renders only depth information from the perspective of a Camera into a depth texture.
+    + 这个深度，应该摄像机的深度图？
 
 ## 后处理
 ### Unity中的后处理
