@@ -93,6 +93,7 @@ Pass
 ```
 
 ### 卡通风格的高光渲染
+[描边的五种方式](https://zhuanlan.zhihu.com/p/410710318)
 原理是把计算出的高光值和阈值进行比较，如果小于该阈值，则高光反射系数为0
 ```hlsl
 	float spec = dot(worldNormal,worldHalfDir);
@@ -148,13 +149,9 @@ Pass
             }
 ```
 
-
-
-
 # alpha贴图
 感觉是 简单一张贴图使用alpha通道就可以。
 具体可以参照透明度测试
-
 
 # URP中的TAGS
 ### "LightMode"
@@ -187,6 +184,13 @@ Blend DstColor Zero // 乘法
 Blend DstColor SrcColor // 2x 乘法
 
 
+## 在shader中获取屏幕画面
+```
+float2 screenUV = i.vertex.xy / _ScaledScreenParams.xy;
+half4 sceneColor = SAMPLE_TEXTURE2D(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, screenUV);
+```
+- 可以用于玻璃之类的
+
 
 
 
@@ -199,3 +203,4 @@ Blend DstColor SrcColor // 2x 乘法
     + 这个处理放在顶点着色器中应该也是不对的，因为到片元内是插值，归一化会失去作用。
 - 高光区域边缘粗糙
     +   计算值的精度问题
+    +   高光闪烁问题： 计算数值大于1过曝
